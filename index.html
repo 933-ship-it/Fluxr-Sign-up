@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Fluxr – Instant Money Transfers</title>
+  <title>Fluxr – Instant, Secure P2P Money Transfers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Fluxr – Instant, secure money transfers — no custody, just flow. Sign in with Google to get started." />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <meta name="description" content="Fluxr – Instant, secure, and decentralized money transfers. No custody, just direct flow. Get started with Google." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -13,51 +13,152 @@
 
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #f0f2f5; /* Light grey background */
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc; /* Light blue-gray background */
+      color: #334155; /* Darker text for professionalism */
+      overflow-x: hidden; /* Prevent horizontal scroll from animations */
     }
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
-    }
-    .btn-google {
-      background-color: #4285F4; /* Google Blue */
+
+    /* Modern Gradient for Hero Section */
+    .hero-gradient-bg {
+      background: linear-gradient(135deg, #1A73E8 0%, #4285F4 100%); /* Google blue gradient */
       color: white;
-      transition: background-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .btn-google:hover {
-      background-color: #357ae8; /* Darker Google Blue on hover */
+
+    /* Abstract background shapes/blobs for modern look */
+    .hero-gradient-bg::before,
+    .hero-gradient-bg::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      filter: blur(80px);
+      z-index: 0;
+      opacity: 0.7;
     }
-    /* Simple fade-in animation for overall content */
-    .fade-in-content {
-      animation: fadeIn 1s ease-out forwards;
+    .hero-gradient-bg::before {
+      width: 400px; height: 400px;
+      top: -100px; left: -100px;
+    }
+    .hero-gradient-bg::after {
+      width: 300px; height: 300px;
+      bottom: -80px; right: -80px;
+    }
+
+    /* Animations */
+    .fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
       opacity: 0;
+      transform: translateY(20px);
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp {
       to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-600 { animation-delay: 0.6s; }
+
+    /* Button specific style for Google Sign-In */
+    .btn-google-auth {
+      background-color: #ffffff;
+      color: #1A73E8;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .btn-google-auth:hover {
+      background-color: #f0f2f5;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen text-gray-800 p-4">
+<body class="flex flex-col min-h-screen">
 
-  <div class="card w-full max-w-md p-8 text-center fade-in-content">
-    <h1 class="text-4xl font-bold text-gray-900 mb-4">Fluxr</h1>
-    <p class="text-lg text-gray-600 mb-8">Instant, secure money transfers — no custody, just flow.</p>
+  <header class="w-full bg-white shadow-sm py-4 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+      <div class="text-2xl font-extrabold text-blue-600">Fluxr</div>
+      <div>
+        </div>
+    </div>
+  </header>
 
-    <button
-      id="signInBtn"
-      class="btn-google flex items-center justify-center w-full px-6 py-3 rounded-lg text-lg font-semibold focus:outline-none focus:ring-4 focus:ring-blue-300"
-    >
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-6 h-6 mr-3">
-      Sign in with Google
-    </button>
-    <div id="authStatus" class="text-gray-500 mt-6 text-base min-h-[20px]"></div>
-  </div>
+  <section class="hero-gradient-bg flex-grow flex items-center justify-center py-20 px-4 text-center relative z-0">
+    <div class="relative z-10 max-w-4xl mx-auto">
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 fade-in-up">
+        Send Money <br><span class="text-blue-200">Instantly, Securely.</span>
+      </h1>
+      <p class="text-xl sm:text-2xl font-light mb-10 fade-in-up delay-200 opacity-0">
+        Direct P2P transfers. No hidden fees. No custody, just flow.
+      </p>
+      <button
+        id="signInBtn"
+        class="btn-google-auth inline-flex items-center px-8 py-4 rounded-xl text-lg font-semibold fade-in-up delay-400 opacity-0"
+      >
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-6 h-6 mr-3">
+        Get Started with Google
+      </button>
+      <div id="authStatus" class="text-blue-100 mt-6 text-base min-h-[20px] fade-in-up delay-600 opacity-0"></div>
+    </div>
+  </section>
 
-  <footer class="absolute bottom-4 left-0 right-0 text-center text-gray-500 text-sm">
-    &copy; <span id="year"></span> Fluxr. All rights reserved.
+  <section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-900">Why Choose Fluxr?</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="feature-card p-6 flex flex-col items-center text-center">
+          <div class="text-5xl mb-4">⚡</div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">Instant Transfers</h3>
+          <p class="text-gray-600">Send and receive money in seconds, across the globe. No waiting periods.</p>
+        </div>
+        <div class="feature-card p-6 flex flex-col items-center text-center">
+          <div class="text-5xl mb-4">🔒</div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">Bank-Grade Security</h3>
+          <p class="text-gray-600">Your transactions are protected with advanced encryption and fraud prevention.</p>
+        </div>
+        <div class="feature-card p-6 flex flex-col items-center text-center">
+          <div class="text-5xl mb-4">🌍</div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">Global Accessibility</h3>
+          <p class="text-gray-600">Connect with anyone, anywhere. Fluxr breaks down borders for your money.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray-100 py-16 text-center">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">Ready to Experience True Financial Flow?</h2>
+      <button
+        id="signInBtnBottom"
+        class="btn-google-auth inline-flex items-center px-8 py-4 rounded-xl text-lg font-semibold"
+      >
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="w-6 h-6 mr-3">
+        Sign Up Now
+      </button>
+    </div>
+  </section>
+
+  <footer class="bg-gray-800 text-gray-300 py-8 text-center text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p>&copy; <span id="year"></span> Fluxr. All rights reserved.</p>
+      <p class="mt-2">
+        <a href="#" class="hover:text-white mx-2">Privacy Policy</a> |
+        <a href="#" class="hover:text-white mx-2">Terms of Service</a>
+      </p>
+    </div>
   </footer>
 
   <script>
@@ -78,6 +179,8 @@
 
     // Elements
     const signInBtn = document.getElementById("signInBtn");
+    // Added a second button for the bottom Call to Action
+    const signInBtnBottom = document.getElementById("signInBtnBottom");
     const authStatus = document.getElementById("authStatus");
     const HOME_URL = "https://933-ship-it.github.io/Fluxr.com/"; // Your Fluxr main app URL
 
@@ -90,6 +193,8 @@
       try {
         await auth.signInWithPopup(provider);
         authStatus.textContent = "Sign-in successful! Redirecting…";
+        // Optionally clear the other button's text too if it exists and is visible
+        if (signInBtnBottom) signInBtnBottom.style.display = 'none';
         setTimeout(redirectToHome, 900);
       } catch (error) {
         authStatus.textContent = "Authentication failed. Please try again: " + error.message;
@@ -97,20 +202,26 @@
       }
     }
 
-    // Attach event listener to button
+    // Attach event listeners to both buttons
     signInBtn.onclick = signInWithGoogle;
+    signInBtnBottom.onclick = signInWithGoogle; // Both buttons trigger the same sign-in function
 
-    // Optional: Sign out on landing page load (as seen in TradeDeck landing)
-    // This can be useful if you always want users to explicitly sign in when they hit the landing.
+    // Always sign out on landing page load to enforce sign-in on every session
     auth.signOut();
 
-    // Auth state listener (as seen in TradeDeck landing)
+    // Auth state listener
     auth.onAuthStateChanged(user => {
       if (user) {
         authStatus.textContent = `Welcome, ${user.displayName}! Redirecting…`;
+        // Hide buttons if already signed in
+        if (signInBtn) signInBtn.style.display = 'none';
+        if (signInBtnBottom) signInBtnBottom.style.display = 'none';
         setTimeout(redirectToHome, 1200);
       } else {
         authStatus.textContent = ""; // Clear status if no user
+        // Ensure buttons are visible if not signed in
+        if (signInBtn) signInBtn.style.display = 'inline-flex';
+        if (signInBtnBottom) signInBtnBottom.style.display = 'inline-flex';
       }
     });
 
