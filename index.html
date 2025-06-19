@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fluxr – Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PayPal Sandbox -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_SANDBOX_CLIENT_ID&currency=USD"></script>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-56 bg-white shadow-xl border-r p-6 flex flex-col justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-green-600 mb-10">Fluxr</h1>
+        <nav class="space-y-4">
+          <button class="w-full text-left text-blue-600 font-semibold border-l-4 border-blue-600 pl-4 py-2 bg-blue-50 rounded-r-md shadow-sm">Home</button>
+          <button class="w-full text-left text-gray-600 hover:text-blue-600 pl-4 py-2 rounded-r-md hover:bg-blue-50">Send</button>
+          <button class="w-full text-left text-gray-600 hover:text-blue-600 pl-4 py-2 rounded-r-md hover:bg-blue-50">Dashboard</button>
+        </nav>
+      </div>
+      <button class="text-sm text-red-500 hover:underline">Log out</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-10 bg-gray-50 space-y-8">
+
+      <!-- Balance Overview -->
+      <section class="bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-semibold mb-2">Welcome back!</h2>
+        <p class="text-gray-500 text-sm">Your current balance:</p>
+        <p id="balanceDisplay" class="text-4xl font-bold text-blue-700 mt-1">$0.00</p>
+        <div class="flex justify-between mt-4 text-sm text-gray-600">
+          <div>Total Earned: <span id="earnedDisplay" class="font-semibold">$0.00</span></div>
+          <div>Total Sent: <span id="sentDisplay" class="font-semibold">$0.00</span></div>
+        </div>
+      </section>
+
+      <!-- Deposit Section -->
+      <section class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-2">Deposit Funds</h3>
+        <input type="number" id="amountInput" placeholder="Enter amount (e.g. 100)" class="border p-3 rounded w-64 mb-4" />
+        <br>
+        <button id="depositBtn" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Deposit</button>
+        <div id="paypal-container" class="mt-6"></div>
+      </section>
+
+      <!-- Recent Transactions -->
+      <section class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
+        <ul class="space-y-3" id="txnList">
+          <!-- Transactions will load here -->
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Firebase + Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB4WYZojOArqdAceRQZD6a6re7MP0Ikl0c",
+      authDomain: "fluxr-913c8.firebaseapp.com",
+      projectId: "fluxr-913c8",
+      storageBucket: "fluxr-913c8.firebasestorage.app",
+      messagingSenderId: "779319537916",
+      appId: "1:779319537916:web:5afa18aade22959ca3a779",
+      measurementId: "G-QX76Q1Z1QB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+
+    let depositAmount = 0;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return alert("You must be signed in.");
+
+      const uid = user.uid;
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        document.getElementById("balanceDisplay").textContent = `$${(data.balance || 0).toFixed(2)}`;
+        document.getElementById("earnedDisplay").textContent = `$${(data.totalEarned || 0).toFixed(2)}`;
+        document.getElementById("sentDisplay").textContent = `$${(data.totalSent || 0).toFixed(2)}`;
+      }
+
+      // Load recent transactions
+      const txnList = document.getElementById("txnList");
+      const txnSnap = await getDocs(collection(db, `users/${uid}/transactions`));
+      txnSnap.forEach((doc) => {
+        const txn = doc.data();
+        const li = document.createElement("li");
+        li.className = "flex justify-between p-3 rounded-md " +
+          (txn.type === "deposit" ? "bg-green-50 text-green-600" : "bg-blue-50 text-blue-600");
+        li.innerHTML = `<span>${txn.type === "deposit" ? "Deposit" : "Transaction"}</span><span>$${txn.amount}</span>`;
+        txnList.appendChild(li);
+      });
+
+      // Deposit click handler
+      document.getElementById("depositBtn").addEventListener("click", () => {
+        depositAmount = parseFloat(document.getElementById("amountInput").value);
+        if (!depositAmount || depositAmount < 1) {
+          alert("Enter a valid amount.");
+          return;
+        }
+
+        document.getElementById("paypal-container").innerHTML = "";
+        paypal.Buttons({
+          createOrder: (data, actions) => {
+            return actions.order.create({
+              purchase_units: [{
+                amount: { value: depositAmount.toFixed(2) }
+              }]
+            });
+          },
+          onApprove: async (data, actions) => {
+            const details = await actions.order.capture();
+
+            const currentBalance = userSnap.data().balance || 0;
+            await updateDoc(userRef, {
+              balance: currentBalance + depositAmount
+            });
+
+            await setDoc(doc(db, `users/${uid}/transactions/${details.id}`), {
+              type: "deposit",
+              amount: depositAmount,
+              status: "confirmed",
+              timestamp: serverTimestamp(),
+              paypalTxnId: details.id
+            });
+
+            alert("Deposit successful. Refresh to see updated values.");
+          }
+        }).render("#paypal-container");
+      });
+    });
+  </script>
+</body>
+</html>
