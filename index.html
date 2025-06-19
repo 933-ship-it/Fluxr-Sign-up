@@ -2,34 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Fluxr – Sign Up</title>
+  <title>Fluxr – Instant Money Transfers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Fluxr – Instant, secure money transfers — no custody, just flow. Sign in with Google to get started." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-</head>
-<body class="bg-white text-gray-800 flex items-center justify-center min-h-screen">
 
-  <div class="text-center">
-    <h1 class="text-4xl font-bold text-green-600 mb-6">Welcome to Fluxr</h1>
-    <p class="text-gray-600 mb-4">Instant, secure money transfers — no custody, just flow.</p>
-    <button id="signInBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition">
-      Sign in with Google
-    </button>
-    <div id="authStatus" class="text-gray-600 mt-4 text-lg min-h-[28px]"></div>
-  </div>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn 1s cubic-bezier(0.23, 1, 0.32, 1); }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(32px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .gradient-bg {
+      background: linear-gradient(120deg, #2563eb 0%, #60a5fa 100%); /* Blue gradient */
+    }
+    .hero-blur {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(ellipse at 40% 30%, #60a5fa33 0%, #2563eb11 58%, transparent 100%);
+      z-index: 0;
+      filter: blur(32px);
+      pointer-events: none;
+    }
+    .card-hover:hover {
+      box-shadow: 0 10px 24px 0 rgba(59,130,246,0.10), 0 1.5px 8px 0 rgba(59,130,246,0.07);
+      transform: translateY(-5px) scale(1.025);
+      transition: all 0.2s;
+    }
+    .btn-shadow { box-shadow: 0 4px 32px 0 rgba(51, 102, 255, 0.16);}
+    ::-webkit-scrollbar { width: 0 !important; }
+    html, body { height: 100%; }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen min-w-full flex flex-col items-center justify-center relative overflow-x-hidden">
+
+  <div class="hero-blur"></div>
+
+  <main class="flex flex-col flex-1 items-center justify-center w-full h-screen relative z-10 fade-in">
+    <div class="select-none text-center mb-6 mt-0 flex flex-col items-center justify-center">
+      <div class="flex items-center justify-center gap-4">
+        <span class="text-7xl md:text-8xl font-extrabold tracking-tight text-white drop-shadow-2xl" style="letter-spacing:-2px;text-shadow:0 6px 32px #1e40af66,0 1px 0 #fff5;">Flux<span class="text-blue-300">r</span></span>
+      </div>
+    </div>
+    <div class="w-full max-w-2xl mx-auto text-center">
+      <p class="text-2xl md:text-3xl text-blue-50 font-semibold mb-8" style="text-shadow:0 2px 8px #1e40af55;">
+        Instant, secure money transfers — <span class="text-white font-bold">no custody</span>, just <span class="text-white font-bold">flow</span>.
+      </p>
+      <button
+        id="signInBtn"
+        class="bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-900 font-bold px-10 py-4 rounded-2xl text-xl md:text-2xl btn-shadow shadow-lg transition focus:outline-none focus:ring-4 focus:ring-blue-200"
+        style="box-shadow:0 6px 32px #2563eb44;"
+      >
+        Sign In with Google
+      </button>
+      <div id="authStatus" class="text-blue-100 mt-6 text-lg min-h-[28px]"></div>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full pb-10 px-4 md:px-0 flex justify-center pointer-events-none z-20">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 w-full max-w-4xl">
+        <div class="flex flex-row items-center gap-3 pointer-events-auto card-hover px-4 py-2 bg-white/10 rounded-2xl shadow">
+          <span class="text-3xl md:text-4xl">⚡</span>
+          <span class="text-blue-50 font-semibold text-lg md:text-xl">Instant Transfers</span>
+        </div>
+        <div class="flex flex-row items-center gap-3 pointer-events-auto card-hover px-4 py-2 bg-white/10 rounded-2xl shadow">
+          <span class="text-3xl md:text-4xl">🔒</span>
+          <span class="text-blue-50 font-semibold text-lg md:text-xl">Secure & Private</span>
+        </div>
+        <div class="flex flex-row items-center gap-3 pointer-events-auto card-hover px-4 py-2 bg-white/10 rounded-2xl shadow">
+          <span class="text-3xl md:text-4xl">🌍</span>
+          <span class="text-blue-50 font-semibold text-lg md:text-xl">Global Access</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full text-center text-blue-100 font-medium absolute bottom-0 pb-3 z-30 select-none" style="text-shadow:0 1px 6px #1e40af44;">
+    &copy; <span id="year"></span> Fluxr. All rights reserved.
+  </footer>
 
   <script>
     // --- Firebase Config (use your Fluxr config here) ---
     const firebaseConfig = {
       apiKey: "AIzaSyB4WYZojOArqdAceRQZD6a6re7MP0Ikl0c", // Your Fluxr API Key
-      authDomain: "fluxr-913c8.firebaseapp.com",       // Your Fluxr Auth Domain
-      projectId: "fluxr-913c8",                       // Your Fluxr Project ID
+      authDomain: "fluxr-913c8.firebaseapp.com",        // Your Fluxr Auth Domain
+      projectId: "fluxr-913c8",                         // Your Fluxr Project ID
       storageBucket: "fluxr-913c8.firebasestorage.app", // Your Fluxr Storage Bucket
-      messagingSenderId: "779319537916",              // Your Fluxr Messaging Sender ID
+      messagingSenderId: "779319537916",                // Your Fluxr Messaging Sender ID
       appId: "1:779319537916:web:5afa18aade22959ca3a779", // Your Fluxr App ID
-      measurementId: "G-QX76Q1Z1QB"                    // Your Fluxr Measurement ID
+      measurementId: "G-QX76Q1Z1QB"                     // Your Fluxr Measurement ID
     };
 
     // Initialize Firebase (Compat Version)
@@ -60,7 +124,7 @@
     // Attach event listener to button
     signInBtn.onclick = signInWithGoogle;
 
-    // Optional: Sign out on landing page load (as seen in TradeDeck landing)
+    // Always sign out on landing page load to enforce sign-in on every session
     // This can be useful if you always want users to explicitly sign in when they hit the landing.
     auth.signOut();
 
@@ -73,6 +137,9 @@
         authStatus.textContent = ""; // Clear status if no user
       }
     });
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
