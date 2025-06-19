@@ -5,6 +5,9 @@
   <title>Fluxr – Sign Up</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 </head>
 <body class="bg-white text-gray-800 flex items-center justify-center min-h-screen">
 
@@ -14,35 +17,61 @@
     <button id="signInBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition">
       Sign in with Google
     </button>
+    <div id="authStatus" class="text-gray-600 mt-4 text-lg min-h-[28px]"></div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-
+  <script>
+    // --- Firebase Config (use your Fluxr config here) ---
     const firebaseConfig = {
-      apiKey: "AIzaSyB4WYZojOArqdAceRQZD6a6re7MP0Ikl0c",
-      authDomain: "fluxr-913c8.firebaseapp.com",
-      projectId: "fluxr-913c8",
-      storageBucket: "fluxr-913c8.firebasestorage.app",
-      messagingSenderId: "779319537916",
-      appId: "1:779319537916:web:5afa18aade22959ca3a779",
-      measurementId: "G-QX76Q1Z1QB"
+      apiKey: "AIzaSyB4WYZojOArqdAceRQZD6a6re7MP0Ikl0c", // Your Fluxr API Key
+      authDomain: "fluxr-913c8.firebaseapp.com",       // Your Fluxr Auth Domain
+      projectId: "fluxr-913c8",                       // Your Fluxr Project ID
+      storageBucket: "fluxr-913c8.firebasestorage.app", // Your Fluxr Storage Bucket
+      messagingSenderId: "779319537916",              // Your Fluxr Messaging Sender ID
+      appId: "1:779319537916:web:5afa18aade22959ca3a779", // Your Fluxr App ID
+      measurementId: "G-QX76Q1Z1QB"                    // Your Fluxr Measurement ID
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+    // Initialize Firebase (Compat Version)
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth(); // Get auth instance
 
-    document.getElementById("signInBtn").addEventListener("click", () => {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          window.location.href = "https://933-ship-it.github.io/Fluxr.com/";
-        })
-        .catch((error) => {
-          alert("Sign-in failed: " + error.message);
-        });
+    // Elements
+    const signInBtn = document.getElementById("signInBtn");
+    const authStatus = document.getElementById("authStatus");
+    const HOME_URL = "https://933-ship-it.github.io/Fluxr.com/"; // Your Fluxr main app URL
+
+    function redirectToHome() {
+      window.location.href = HOME_URL;
+    }
+
+    async function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider(); // Google Auth Provider
+      try {
+        await auth.signInWithPopup(provider);
+        authStatus.textContent = "Sign-in successful! Redirecting…";
+        setTimeout(redirectToHome, 900);
+      } catch (error) {
+        authStatus.textContent = "Authentication failed. Please try again: " + error.message;
+        console.error("Sign-in error:", error);
+      }
+    }
+
+    // Attach event listener to button
+    signInBtn.onclick = signInWithGoogle;
+
+    // Optional: Sign out on landing page load (as seen in TradeDeck landing)
+    // This can be useful if you always want users to explicitly sign in when they hit the landing.
+    auth.signOut();
+
+    // Auth state listener (as seen in TradeDeck landing)
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        authStatus.textContent = `Welcome, ${user.displayName}! Redirecting…`;
+        setTimeout(redirectToHome, 1200);
+      } else {
+        authStatus.textContent = ""; // Clear status if no user
+      }
     });
   </script>
 </body>
